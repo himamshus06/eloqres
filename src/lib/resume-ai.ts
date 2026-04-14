@@ -152,7 +152,8 @@ export const tailorToJob = createServerFn({ method: 'POST' })
         'Analyze this resume against the job description. Return JSON (no markdown fences): {"keywords": ["missing keywords to add"], "strengths": ["sections that align well"], "improvements": ["specific suggestions to tailor the resume"], "score": 0-100 match percentage}.',
         `Resume:\n${data.resumeText}\n\nJob Description:\n${data.jobDescription}`
       );
-      return { analysis: extractJSON(result), error: null };
+      const analysisData = extractJSON(result);
+      return { analysis: analysisData as { keywords: string[]; strengths: string[]; improvements: string[]; score: number }, error: null };
     } catch (e) {
       return { analysis: null, error: e instanceof Error ? e.message : 'Failed' };
     }
