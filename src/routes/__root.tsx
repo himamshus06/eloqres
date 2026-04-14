@@ -31,16 +31,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "ResumeForge — AI Resume Builder" },
+      { name: "description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export. Free online resume builder." },
+      { property: "og:title", content: "ResumeForge — AI Resume Builder" },
+      { property: "og:description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
