@@ -86,7 +86,7 @@ export const scoreResume = createServerFn({ method: 'POST' })
         'Analyze this resume and return a JSON object (no markdown fences) with: "overall" (0-100 score), "impact" (0-100, are bullets quantified and action-verb-led?), "clarity" (0-100, concise and jargon-free?), "ats" (0-100, ATS compatible keywords/formatting?), "completeness" (0-100, missing sections?), "suggestions" (array of 4-6 specific actionable improvement strings).',
         data.resumeText
       );
-      return { score: extractJSON(result), error: null };
+      return { score: extractJSON(result) as Record<string, unknown>, error: null };
     } catch (e) {
       return { score: null, error: e instanceof Error ? e.message : 'Failed' };
     }
