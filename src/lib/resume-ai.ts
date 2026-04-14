@@ -31,7 +31,8 @@ async function callAI(systemPrompt: string, userPrompt: string): Promise<string>
   return data.choices?.[0]?.message?.content || '';
 }
 
-function extractJSON(text: string): unknown {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractJSON(text: string): any {
   const cleaned = text.replace(/```(?:json)?\s*/g, '').replace(/```/g, '').trim();
   return JSON.parse(cleaned);
 }
