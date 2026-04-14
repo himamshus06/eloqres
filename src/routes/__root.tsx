@@ -34,9 +34,13 @@ export const Route = createRootRoute({
       { title: "ResumeForge — AI Resume Builder" },
       { name: "description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export. Free online resume builder." },
       { property: "og:title", content: "ResumeForge — AI Resume Builder" },
-      { property: "og:description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export." },
+      { property: "og:description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export. Free online resume builder." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "ResumeForge — AI Resume Builder" },
+      { name: "twitter:description", content: "Build a standout resume with AI-powered suggestions, ATS-optimized templates, and instant export. Free online resume builder." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7df3e24f-cb3a-4124-91eb-61b32c5fa410" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/7df3e24f-cb3a-4124-91eb-61b32c5fa410" },
     ],
     links: [
       {
