@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { ResumeData, ResumeScore } from '@/lib/resume-types';
 import { generateId } from '@/lib/resume-types';
 import { scoreResume, parseResumeText } from '@/lib/resume-ai';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Sparkles, Loader2, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Sparkles, Loader2, ArrowRight, CheckCircle, AlertTriangle, Upload, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UploadModeProps {
@@ -13,14 +13,68 @@ interface UploadModeProps {
   onSwitchToBuild: () => void;
 }
 
+async function extractTextFromPDF(file: File): Promise<string> {
+  const pdfjsLib = await import('pdfjs-dist');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pages: string[] = [];
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items
+      .filter((item): item is { str: string } => 'str' in item)
+      .map(item => item.str);
+    pages.push(strings.join(' '));
+  }
+
+  return pages.join('\n\n');
+}
+
 export function UploadMode({ setResumeData, onSwitchToBuild }: UploadModeProps) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [score, setScore] = useState<ResumeScore | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Please upload a PDF file');
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File size must be under 20MB');
+      return;
+    }
+
+    setPdfLoading(true);
+    setFileName(file.name);
+    try {
+      const extracted = await extractTextFromPDF(file);
+      if (!extracted.trim()) {
+        toast.error('Could not extract text from this PDF. It may be a scanned image.');
+        setPdfLoading(false);
+        return;
+      }
+      setText(extracted);
+      toast.success(`Extracted text from ${file.name}`);
+    } catch {
+      toast.error('Failed to read PDF file');
+    }
+    setPdfLoading(false);
+  };
 
   const handleAnalyze = async () => {
     if (!text.trim()) {
-      toast.error('Please paste your resume first');
+      toast.error('Please paste your resume or upload a PDF first');
       return;
     }
     setLoading(true);
@@ -55,7 +109,7 @@ export function UploadMode({ setResumeData, onSwitchToBuild }: UploadModeProps) 
             ? parsed.projects.map((p: Record<string, unknown>) => ({ ...p, id: generateId() })) as ResumeData['projects']
             : prev.projects,
         }));
-        toast.success('Resume parsed successfully');
+        toast.success('Resume parsed and autofilled successfully!');
       }
     } catch {
       toast.error('Analysis failed');
@@ -73,20 +127,61 @@ export function UploadMode({ setResumeData, onSwitchToBuild }: UploadModeProps) 
     <div className="p-5 space-y-5">
       <div>
         <h2 className="font-heading text-2xl mb-1">Upload & Improve</h2>
-        <p className="text-sm text-muted-foreground">Paste your existing resume text below for AI analysis.</p>
+        <p className="text-sm text-muted-foreground">Upload a PDF or paste your resume text for AI analysis and autofill.</p>
+      </div>
+
+      {/* PDF Upload */}
+      <div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,application/pdf"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={pdfLoading}
+          className="w-full border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-3 hover:border-primary/60 transition-colors cursor-pointer group"
+        >
+          {pdfLoading ? (
+            <>
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              <span className="text-sm text-muted-foreground">Extracting text from PDF...</span>
+            </>
+          ) : fileName ? (
+            <>
+              <FileText className="h-8 w-8 text-primary" />
+              <span className="text-sm font-medium">{fileName}</span>
+              <span className="text-xs text-muted-foreground">Click to upload a different file</span>
+            </>
+          ) : (
+            <>
+              <Upload className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-sm font-medium">Upload PDF Resume</span>
+              <span className="text-xs text-muted-foreground">Click to browse or drag & drop</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-xs text-muted-foreground">or paste text</span>
+        <div className="flex-1 h-px bg-border" />
       </div>
 
       <Textarea
         value={text}
         onChange={e => setText(e.target.value)}
         placeholder="Paste your resume text here..."
-        rows={12}
+        rows={8}
         className="resize-none font-mono text-xs"
       />
 
       <Button onClick={handleAnalyze} disabled={loading || !text.trim()} className="w-full">
         {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-        Analyze Resume
+        Analyze & Autofill Resume
       </Button>
 
       {/* Score Display */}
