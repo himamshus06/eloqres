@@ -74,6 +74,7 @@ function resumeToPlainText(data: ResumeData): string {
 }
 
 export function ResumeBuilder() {
+  const { signOut } = useAuth();
   const [mode, setMode] = useState<'select' | 'build' | 'upload'>('select');
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [template, setTemplate] = useState<TemplateType>('classic');
