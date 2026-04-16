@@ -256,6 +256,10 @@ export function ResumeBuilder() {
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.print()} title="Print">
               <Printer className="h-3.5 w-3.5" />
             </Button>
+            <div className="w-px h-4 bg-border mx-1" />
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={signOut} title="Sign out">
+              <LogOut className="h-3.5 w-3.5" />
+            </Button>
           </div>
         </div>
       </header>
