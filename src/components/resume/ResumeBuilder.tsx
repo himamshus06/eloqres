@@ -89,7 +89,72 @@ export function ResumeBuilder() {
   const downloadHTML = useCallback(() => {
     const previewEl = document.getElementById('resume-preview-content');
     if (!previewEl) return;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${resumeData.personal.name || 'Resume'}</title><style>body{font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a1a}h1,h2,h3{margin:0}*{box-sizing:border-box}</style></head><body>${previewEl.innerHTML}</body></html>`;
+
+    // Clone and collect all inline styles from the rendered preview
+    const clone = previewEl.cloneNode(true) as HTMLElement;
+
+    // Build comprehensive CSS for the standalone HTML file
+    const css = `
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: ${fontFamily === 'serif' ? "'Georgia', 'Times New Roman', serif" : "'DM Sans', system-ui, sans-serif"}; max-width: 800px; margin: 0 auto; color: #1a1a2e; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .flex { display: flex; }
+      .flex-1 { flex: 1; }
+      .flex-wrap { flex-wrap: wrap; }
+      .items-baseline { align-items: baseline; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .justify-center { justify-content: center; }
+      .gap-1 { gap: 0.25rem; }
+      .gap-1\\.5 { gap: 0.375rem; }
+      .gap-2 { gap: 0.5rem; }
+      .gap-x-3 { column-gap: 0.75rem; }
+      .gap-x-4 { column-gap: 1rem; }
+      .gap-y-0\\.5 { row-gap: 0.125rem; }
+      .text-center { text-align: center; }
+      .font-bold { font-weight: 700; }
+      .font-semibold { font-weight: 600; }
+      .font-medium { font-weight: 500; }
+      .font-light { font-weight: 300; }
+      .uppercase { text-transform: uppercase; }
+      .leading-tight { line-height: 1.25; }
+      .leading-relaxed { line-height: 1.625; }
+      .tracking-tight { letter-spacing: -0.025em; }
+      .tracking-wide { letter-spacing: 0.025em; }
+      .tracking-wider { letter-spacing: 0.05em; }
+      .tracking-widest { letter-spacing: 0.1em; }
+      .space-y-0\\.5 > * + * { margin-top: 0.125rem; }
+      .space-y-1 > * + * { margin-top: 0.25rem; }
+      .space-y-1\\.5 > * + * { margin-top: 0.375rem; }
+      .mb-0\\.5 { margin-bottom: 0.125rem; }
+      .mb-1 { margin-bottom: 0.25rem; }
+      .mb-1\\.5 { margin-bottom: 0.375rem; }
+      .mb-2 { margin-bottom: 0.5rem; }
+      .mb-3 { margin-bottom: 0.75rem; }
+      .mb-4 { margin-bottom: 1rem; }
+      .mb-5 { margin-bottom: 1.25rem; }
+      .mb-6 { margin-bottom: 1.5rem; }
+      .mt-0\\.5 { margin-top: 0.125rem; }
+      .mt-1 { margin-top: 0.25rem; }
+      .ml-1\\.5 { margin-left: 0.375rem; }
+      .ml-2 { margin-left: 0.5rem; }
+      .p-6 { padding: 1.5rem; }
+      .p-8 { padding: 2rem; }
+      .p-10 { padding: 2.5rem; }
+      .px-1\\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+      .py-0\\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+      .pb-6 { padding-bottom: 1.5rem; }
+      .rounded { border-radius: 0.25rem; }
+      .shrink-0 { flex-shrink: 0; }
+      .min-h-\\[700px\\] { min-height: 700px; }
+      .w-\\[38\\%\\] { width: 38%; }
+      ul { list-style: none; padding: 0; }
+      h1, h2, h3 { margin: 0; }
+      @media print {
+        body { margin: 0; padding: 0; max-width: 100%; }
+      }
+    `;
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${resumeData.personal.name || 'Resume'}</title><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"><style>${css}</style></head><body>${clone.innerHTML}</body></html>`;
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -98,7 +163,7 @@ export function ResumeBuilder() {
     a.click();
     URL.revokeObjectURL(url);
     toast.success('Downloaded HTML');
-  }, [resumeData]);
+  }, [resumeData, fontFamily]);
 
   if (mode === 'select') {
     return (

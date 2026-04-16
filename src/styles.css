@@ -114,10 +114,47 @@
 }
 
 @media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
   body {
     background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
   .no-print {
     display: none !important;
+  }
+  /* Hide everything except the resume preview */
+  header, .no-print, [class*="lg:border-r"] {
+    display: none !important;
+  }
+  main {
+    display: block !important;
+  }
+  /* Make the preview fill the page */
+  #resume-preview-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+  /* Remove the preview wrapper padding */
+  #resume-preview-content-wrapper {
+    padding: 0 !important;
+    display: block !important;
+  }
+  /* Ensure the editor panel is hidden */
+  main > div:first-child {
+    display: none !important;
+  }
+  main > div:last-child {
+    width: 100% !important;
+    background: white !important;
+    overflow: visible !important;
   }
 }
