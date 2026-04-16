@@ -2,7 +2,12 @@
 
 import { createLovableAuth } from "@lovable.dev/cloud-auth-js";
 import { supabase } from "../supabase/client";
-const lovableAuth = createLovableAuth();
+
+let _lovableAuth: ReturnType<typeof createLovableAuth> | undefined;
+function getLovableAuth() {
+  if (!_lovableAuth) _lovableAuth = createLovableAuth();
+  return _lovableAuth;
+}
 
 type SignInOptions = {
   redirect_uri?: string;
@@ -12,7 +17,7 @@ type SignInOptions = {
 export const lovable = {
   auth: {
     signInWithOAuth: async (provider: "google" | "apple" | "microsoft", opts?: SignInOptions) => {
-      const result = await lovableAuth.signInWithOAuth(provider, {
+      const result = await getLovableAuth().signInWithOAuth(provider, {
         redirect_uri: opts?.redirect_uri,
         extraParams: {
           ...opts?.extraParams,
