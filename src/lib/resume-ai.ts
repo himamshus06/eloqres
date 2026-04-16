@@ -1,6 +1,15 @@
 import { createServerFn } from '@tanstack/react-start';
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 
 const AI_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
+
+const MAX_SHORT = 200;
+const MAX_MEDIUM = 1000;
+const MAX_LONG = 15000;
+
+function assertMaxLen(value: string, max: number, label: string) {
+  if (value.length > max) throw new Error(`${label} too long (max ${max.toLocaleString()} chars)`);
+}
 
 async function callAI(systemPrompt: string, userPrompt: string): Promise<string> {
   const apiKey = process.env.LOVABLE_API_KEY;
@@ -38,7 +47,12 @@ function extractJSON(text: string): any {
 }
 
 export const generateBullets = createServerFn({ method: 'POST' })
-  .inputValidator((input: { jobTitle: string; description: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { jobTitle: string; description: string }) => {
+    assertMaxLen(input.jobTitle, MAX_SHORT, 'Job title');
+    assertMaxLen(input.description, MAX_MEDIUM, 'Description');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -52,7 +66,13 @@ export const generateBullets = createServerFn({ method: 'POST' })
   });
 
 export const generateSummary = createServerFn({ method: 'POST' })
-  .inputValidator((input: { title: string; years: string; skills: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { title: string; years: string; skills: string }) => {
+    assertMaxLen(input.title, MAX_SHORT, 'Title');
+    assertMaxLen(input.years, MAX_SHORT, 'Years');
+    assertMaxLen(input.skills, MAX_MEDIUM, 'Skills');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -66,7 +86,11 @@ export const generateSummary = createServerFn({ method: 'POST' })
   });
 
 export const suggestSkills = createServerFn({ method: 'POST' })
-  .inputValidator((input: { jobTitle: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { jobTitle: string }) => {
+    assertMaxLen(input.jobTitle, MAX_SHORT, 'Job title');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -80,7 +104,11 @@ export const suggestSkills = createServerFn({ method: 'POST' })
   });
 
 export const scoreResume = createServerFn({ method: 'POST' })
-  .inputValidator((input: { resumeText: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { resumeText: string }) => {
+    assertMaxLen(input.resumeText, MAX_LONG, 'Resume text');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -95,7 +123,12 @@ export const scoreResume = createServerFn({ method: 'POST' })
   });
 
 export const rewriteSection = createServerFn({ method: 'POST' })
-  .inputValidator((input: { text: string; style: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { text: string; style: string }) => {
+    assertMaxLen(input.text, MAX_LONG, 'Text');
+    assertMaxLen(input.style, MAX_SHORT, 'Style');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -109,7 +142,11 @@ export const rewriteSection = createServerFn({ method: 'POST' })
   });
 
 export const parseResumeText = createServerFn({ method: 'POST' })
-  .inputValidator((input: { text: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { text: string }) => {
+    assertMaxLen(input.text, MAX_LONG, 'Text');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -131,7 +168,13 @@ export const parseResumeText = createServerFn({ method: 'POST' })
   });
 
 export const generateCoverLetter = createServerFn({ method: 'POST' })
-  .inputValidator((input: { resumeText: string; jobTitle: string; company: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { resumeText: string; jobTitle: string; company: string }) => {
+    assertMaxLen(input.resumeText, MAX_LONG, 'Resume text');
+    assertMaxLen(input.jobTitle, MAX_SHORT, 'Job title');
+    assertMaxLen(input.company, MAX_SHORT, 'Company');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
@@ -145,7 +188,12 @@ export const generateCoverLetter = createServerFn({ method: 'POST' })
   });
 
 export const tailorToJob = createServerFn({ method: 'POST' })
-  .inputValidator((input: { resumeText: string; jobDescription: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { resumeText: string; jobDescription: string }) => {
+    assertMaxLen(input.resumeText, MAX_LONG, 'Resume text');
+    assertMaxLen(input.jobDescription, MAX_LONG, 'Job description');
+    return input;
+  })
   .handler(async ({ data }) => {
     try {
       const result = await callAI(
