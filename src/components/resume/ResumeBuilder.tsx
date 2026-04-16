@@ -3,9 +3,10 @@ import { type ResumeData, type TemplateType, initialResumeData } from '@/lib/res
 import { WizardForm } from '@/components/resume/WizardSteps';
 import { ResumePreview } from '@/components/resume/ResumePreview';
 import { UploadMode } from '@/components/resume/UploadMode';
-import { FileText, Upload, ArrowLeft, Download, Copy, Printer, Check } from 'lucide-react';
+import { FileText, Upload, ArrowLeft, Download, Copy, Printer, Check, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
 
 const ACCENT_COLORS = ['#C45D3E', '#2563EB', '#059669', '#D97706', '#0891B2', '#4F46E5', '#DC2626', '#64748B'];
 const TEMPLATES: { value: TemplateType; label: string }[] = [
@@ -73,6 +74,7 @@ function resumeToPlainText(data: ResumeData): string {
 }
 
 export function ResumeBuilder() {
+  const { signOut } = useAuth();
   const [mode, setMode] = useState<'select' | 'build' | 'upload'>('select');
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [template, setTemplate] = useState<TemplateType>('classic');
@@ -253,6 +255,10 @@ export function ResumeBuilder() {
             </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => window.print()} title="Print">
               <Printer className="h-3.5 w-3.5" />
+            </Button>
+            <div className="w-px h-4 bg-border mx-1" />
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={signOut} title="Sign out">
+              <LogOut className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
