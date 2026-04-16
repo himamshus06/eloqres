@@ -25,10 +25,10 @@ export function ResumePreview({ resumeData, template, accentColor, fontFamily }:
   const font = fontFamily === 'serif' ? "'Georgia', 'Times New Roman', serif" : "'DM Sans', system-ui, sans-serif";
 
   return (
-    <div className="p-4 md:p-6 flex justify-center">
+    <div id="resume-preview-content-wrapper" className="p-4 md:p-6 flex justify-center">
       <div
         id="resume-preview-content"
-        className="w-full max-w-[680px] resume-paper rounded shadow-lg"
+        className="w-full max-w-[680px] resume-paper rounded shadow-lg print:shadow-none print:rounded-none print:max-w-none"
         style={{ fontFamily: font }}
       >
         {template === 'classic' && <ClassicTemplate data={resumeData} accent={accentColor} />}
